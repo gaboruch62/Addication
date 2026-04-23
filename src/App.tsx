@@ -101,9 +101,6 @@ const listItemVariant = {
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [quizStep, setQuizStep] = useState(0);
-  const [quizScore, setQuizScore] = useState(0);
-  const [showQuizResult, setShowQuizResult] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // Parallax for Brain Section
@@ -145,38 +142,16 @@ export default function App() {
     return () => window.removeEventListener("scroll", updateScrollProgress);
   }, []);
 
-  const quizQuestions = [
-    "هل تشعر برغبة ملحة ومتكررة في ممارسة السلوك أو تعاطي المادة؟",
-    "هل حاولت التوقف أو التقليل وفشلت في ذلك؟",
-    "هل بدأت تهمل مسؤولياتك (عمل، دراسة، عائلة) بسبب هذا السلوك؟",
-    "هل تلاحظ أنك تحتاج لزيادة 'الجرعة' أو الوقت للوصول لنفس الشعور السابق؟",
-    "هل تشعر بالضيق أو التوتر الشديد عند محاولة التوقف؟"
-  ];
-
-  const handleQuizAnswer = (answer: boolean) => {
-    if (answer) setQuizScore(prev => prev + 1);
-    if (quizStep < quizQuestions.length - 1) {
-      setQuizStep(quizStep + 1);
-    } else {
-      setShowQuizResult(true);
-    }
-  };
-
-  const resetQuiz = () => {
-    setQuizStep(0);
-    setQuizScore(0);
-    setShowQuizResult(false);
-  };
+  /* Previous quiz sections removed as requested */
 
   const navLinks = [
     { name: "البداية", href: "#hero" },
     { name: "عن الإدمان", href: "#intro" },
     { name: "الأنواع", href: "#types" },
     { name: "الدماغ", href: "#brain" },
-    { name: "التقييم الذاتي", href: "#quiz" },
+    { name: "اختبار الوعي", href: "#psychological-test" },
     { name: "التعافي", href: "#recovery" },
-    { name: "الأسئلة الشائعة", href: "#faq" },
-    { name: "المقياس النفسي", href: "#psychological-test" },
+    { name: "الأسئلة الشائعة", href: "#faq" }
   ];
 
   const psychologicalTestQuestions = [
@@ -622,89 +597,6 @@ export default function App() {
                   </motion.div>
                 </motion.div>
              </div>
-          </div>
-        </section>
-
-        {/* Self-Assessment Quiz Section */}
-        <section id="quiz" className="scroll-mt-32">
-          <div className="bg-white rounded-[3rem] p-8 md:p-16 border border-gray-100 shadow-xl overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gray-100">
-               <motion.div 
-                 className="h-full bg-brand-accent"
-                 initial={{ width: 0 }}
-                 animate={{ width: `${((quizStep + 1) / quizQuestions.length) * 100}%` }}
-               />
-            </div>
-            
-            <div className="max-w-2xl mx-auto">
-              <div className="flex items-center gap-3 mb-8">
-                <ClipboardList className="text-brand-primary" size={32} />
-                <h2 className="text-2xl font-bold text-brand-primary">تقييم ذاتي سريع</h2>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {!showQuizResult ? (
-                  <motion.div 
-                    key={quizStep}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="space-y-8"
-                  >
-                    <p className="text-xl font-medium text-gray-800 leading-relaxed italic">
-                      {quizQuestions[quizStep]}
-                    </p>
-                    <div className="flex gap-4">
-                      <button 
-                        onClick={() => handleQuizAnswer(true)}
-                        className="flex-1 py-4 bg-brand-primary text-white rounded-2xl font-bold hover:bg-brand-primary/90 transition-all shadow-lg hover:shadow-brand-primary/20"
-                      >
-                        نعم
-                      </button>
-                      <button 
-                        onClick={() => handleQuizAnswer(false)}
-                        className="flex-1 py-4 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all"
-                      >
-                        لا
-                      </button>
-                    </div>
-                    <p className="text-center text-sm text-gray-400">سؤال {quizStep + 1} من {quizQuestions.length}</p>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    key="result"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center space-y-6"
-                  >
-                    <div className="inline-flex p-4 rounded-full bg-brand-accent/10 mb-2">
-                       <AlertTriangle className="text-brand-accent" size={48} />
-                    </div>
-                    <h3 className="text-2xl font-bold">نتيجة التقييم</h3>
-                    <div className="p-6 bg-brand-bg rounded-2xl border border-brand-primary/5">
-                      {quizScore >= 3 ? (
-                        <div className="space-y-4">
-                           <p className="text-brand-accent font-bold text-lg">هذا التقييم يشير إلى وجود علامات قوية تستدعي الانتباه.</p>
-                           <p className="text-gray-600">ننصحك بالتحدث مع مختص بسرية تامة. تذكر أن طلب المساعدة هو علامة قوة وليس ضعف.</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                           <p className="text-green-600 font-bold text-lg">يبدو أنك في منطقة آمنة حالياً، لكن الوعي المستمر ضروري.</p>
-                           <p className="text-gray-600">استمر في تثقيف نفسك وحماية صحتك النفسية.</p>
-                        </div>
-                      )}
-                    </div>
-                    <button 
-                      onClick={resetQuiz}
-                      className="text-brand-primary font-bold hover:underline"
-                    >
-                      إعادة التقييم
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              <p className="mt-8 text-xs text-gray-400 text-center">* هذا التقييم لأغراض التوعية فقط ولا يغني عن التشخيص الطبي المتخصص.</p>
-            </div>
           </div>
         </section>
 
@@ -1307,7 +1199,9 @@ export default function App() {
                           انضم إلى مجتمعنا على ديسكورد للحصول على دعم مباشر، نقاشات هادفة، ومساحة آمنة للتعبير والنمو المشترك.
                         </p>
                         <motion.a 
-                          href="#" 
+                          href="https://discord.gg/invite" // Replace with actual discord invite link
+                          target="_blank"
+                          rel="noopener noreferrer"
                           whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)" }}
                           whileTap={{ scale: 0.95 }}
                           className="bg-indigo-600 text-white px-10 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-indigo-100 transition-all"
