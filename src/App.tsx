@@ -52,7 +52,12 @@ import {
   Gamepad2,
   Dice5,
   ShoppingBag,
-  Beer
+  Beer,
+  Dumbbell,
+  Palette,
+  Music,
+  Compass,
+  Trophy
 } from "lucide-react";
 
 const fadeIn = {
@@ -101,7 +106,6 @@ const listItemVariant = {
 
 export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
 
   // Parallax for Brain Section
   const brainRef = useRef(null);
@@ -130,18 +134,6 @@ export default function App() {
     "المحفزات": { title: "المحفزات (Triggers)", content: "أماكن، أشخاص، أو مشاعر معينة تثير الرغبة الشديدة في العودة للسلوك الإدماني." }
   }), []);
 
-  useEffect(() => {
-    const updateScrollProgress = () => {
-      const currentScroll = window.scrollY;
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (scrollHeight) {
-        setScrollProgress((currentScroll / scrollHeight) * 100);
-      }
-    };
-    window.addEventListener("scroll", updateScrollProgress);
-    return () => window.removeEventListener("scroll", updateScrollProgress);
-  }, []);
-
   /* Previous quiz sections removed as requested */
 
   const navLinks = [
@@ -150,6 +142,7 @@ export default function App() {
     { name: "الأنواع", href: "#types" },
     { name: "الدماغ", href: "#brain" },
     { name: "اختبار الوعي", href: "#psychological-test" },
+    { name: "بدائل ممتعة", href: "#prevention" },
     { name: "التعافي", href: "#recovery" },
     { name: "الأسئلة الشائعة", href: "#faq" }
   ];
@@ -218,13 +211,52 @@ export default function App() {
     setIsPAnswered(false);
   };
 
+  const { scrollYProgress: mainScrollProgress } = useScroll();
+  const gamepadY = useTransform(mainScrollProgress, [0, 1], ["10vh", "80vh"]);
+  const gamepadRotate = useTransform(mainScrollProgress, [0, 1], [0, 720]);
+  const gamepadX = useTransform(mainScrollProgress, [0, 0.5, 1], [0, 50, 0]);
+
   return (
     <div className="min-h-screen selection:bg-brand-accent selection:text-white" id="main-container">
-      {/* Scroll Progress Bar */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-brand-accent z-[60] origin-left"
-        style={{ scaleX: scrollProgress / 100 }}
-      />
+      {/* Floating Gamepad */}
+      <motion.div
+        style={{ top: gamepadY, rotate: gamepadRotate, x: gamepadX }}
+        className="fixed left-10 z-[100] hidden xl:block pointer-events-none"
+      >
+        <motion.div
+          animate={{ 
+            y: [0, -10, 0],
+          }}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="pointer-events-auto"
+        >
+          <motion.button
+            whileHover={{ 
+              scale: 1.2, 
+              filter: "drop-shadow(0 0 15px rgba(59, 130, 246, 0.6))",
+            }}
+            whileTap={{ scale: 0.8 }}
+            onClick={() => {
+              const colors = ["#FFBC04", "#3B82F6", "#10B981"];
+              const randomColor = colors[Math.floor(Math.random() * colors.length)];
+              document.documentElement.style.setProperty('--brand-accent', randomColor);
+            }}
+            title="تفاعل معي! (تغيير لون الثيم)"
+            className="p-4 bg-white/20 backdrop-blur-xl rounded-[2rem] border border-white/30 text-brand-primary shadow-[0_20px_50px_rgba(0,0,0,0.1)] group relative"
+          >
+            <Gamepad2 size={40} className="group-hover:text-brand-accent transition-colors duration-300" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-brand-accent rounded-full animate-ping" />
+            <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-brand-primary text-white text-[10px] py-1 px-2 rounded-full whitespace-nowrap font-bold">
+              تغيير الثيم
+            </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
+
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100" id="top-nav">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -684,6 +716,89 @@ export default function App() {
                 </table>
               </div>
            </div>
+        </section>
+
+        {/* Enjoyable Prevention Section */}
+        <section id="prevention" className="scroll-mt-32">
+          <div className="text-center mb-16">
+            <motion.div 
+              variants={scaleIn}
+              initial="initial"
+              whileInView="whileInView"
+              className="inline-flex p-3 bg-brand-secondary/10 rounded-2xl mb-4"
+            >
+              <Trophy className="text-brand-secondary" size={32} />
+            </motion.div>
+            <h2 className="text-3xl font-bold text-brand-primary mb-4">بدائل ممتعة وحياة متزنة</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              الوقاية ليست مجرد ابتعاد عما يضر، بل هي اقتراب مما ينفع ويجلب السعادة الحقيقية والمستدامة.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: <Dumbbell size={28} />,
+                title: "النشاط البدني",
+                desc: "الرياضة تفرز الأندورفين والسيروتونين طبيعياً، مما يحسن المزاج ويقلل التوتر.",
+                color: "text-blue-500",
+                bg: "bg-blue-50"
+              },
+              {
+                icon: <Palette size={28} />,
+                title: "الهوايات الإبداعية",
+                desc: "الرسم، الكتابة، أو الأعمال اليدوية تضعك في حالة 'التدفق' الذهني وتبعدك عن الرتابة.",
+                color: "text-purple-500",
+                bg: "bg-purple-50"
+              },
+              {
+                icon: <Users size={28} />,
+                title: "الروابط الاجتماعية",
+                desc: "الجلسات الصادقة مع العائلة والأصدقاء تملأ الفراغ العاطفي الذي قد يسدده الإدمان.",
+                color: "text-green-500",
+                bg: "bg-green-50"
+              },
+              {
+                icon: <Compass size={28} />,
+                title: "الاستكشاف والتعلم",
+                desc: "تعلم مهارة جديدة أو زيارة أماكن غير مألوفة يوسع آفاقك ويجدد خلايا دماغك.",
+                color: "text-amber-500",
+                bg: "bg-amber-50"
+              }
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={fadeIn}
+                whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                className="p-6 rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+              >
+                <div className={`p-4 ${item.bg} ${item.color} rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform`}>
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold text-brand-primary mb-3">{item.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div 
+            className="mt-12 p-8 rounded-[2.5rem] bg-gradient-to-r from-brand-primary to-brand-primary/90 text-white flex flex-col md:flex-row items-center gap-8 shadow-xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="p-5 bg-white/10 backdrop-blur-md rounded-full">
+              <Lightbulb className="text-brand-accent animate-pulse" size={40} />
+            </div>
+            <div className="flex-1 text-center md:text-right">
+              <h4 className="text-2xl font-bold mb-2">القاعدة الذهبية: الوعي بالمحفزات</h4>
+              <p className="opacity-80 leading-relaxed italic border-r-2 border-brand-accent/50 pr-4">
+                "السعادة الحقيقية هي تلك التي نبنيها بوعينا، وليست تلك التي نستعيرها من مواد خارجية بفوائد باهظة من صحتنا ومستقبلنا."
+              </p>
+            </div>
+          </motion.div>
         </section>
 
         {/* Recovery Steps Section */}

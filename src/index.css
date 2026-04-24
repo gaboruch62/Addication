@@ -2,13 +2,17 @@
 @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
 @import "tailwindcss";
 
+:root {
+  --brand-accent: #ffbc04;
+}
+
 @theme {
   --font-sans: "Tajawal", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Cairo", sans-serif;
   
   --color-brand-primary: #4a5d5e;
   --color-brand-secondary: #8ba8a9;
-  --color-brand-accent: #e28a67;
+  --color-brand-accent: var(--brand-accent);
   --color-brand-bg: #f8f9fa;
   --color-brand-card: #ffffff;
 }
