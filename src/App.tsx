@@ -57,7 +57,13 @@ import {
   Palette,
   Music,
   Compass,
-  Trophy
+  Trophy,
+  Calendar,
+  Check,
+  ShieldCheck,
+  Wind,
+  Flame,
+  Trees
 } from "lucide-react";
 
 const fadeIn = {
@@ -126,6 +132,8 @@ export default function App() {
   const [isPAnswered, setIsPAnswered] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [activeKeyword, setActiveKeyword] = useState<{title: string, content: string} | null>(null);
+  const [showJourney, setShowJourney] = useState(false);
+  const [journeyStep, setJourneyStep] = useState(0);
 
   const cbtKeywords = useMemo(() => ({
     "الأفكار": { title: "الأفكار التلقائية", content: "هي الأفكار التي تخطر ببالنا فوراً وتؤثر على شعورنا، وغالباً ما تكون غير دقيقة في حالات الإدمان." },
@@ -258,9 +266,9 @@ export default function App() {
       </motion.div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100" id="top-nav">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="text-brand-primary font-bold text-xl">متاهة الإدمان</div>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100" id="top-nav">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
+          <div className="text-brand-primary font-bold text-lg md:text-xl shrink-0">متاهة الإدمان</div>
           
           {/* Desktop Nav */}
           <div className="hidden lg:flex gap-8">
@@ -284,31 +292,40 @@ export default function App() {
         {/* Mobile Nav */}
         <AnimatePresence>
           {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-b border-gray-100 overflow-hidden"
-            >
-              <div className="flex flex-col p-6 gap-4">
-                {navLinks.map((link, i) => (
-                  <a 
-                    key={i} 
-                    href={link.href} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-gray-600 hover:text-brand-accent transition-colors py-2"
-                  >
-                    {link.name}
-                  </a>
-                ))}
-              </div>
-            </motion.div>
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMenuOpen(false)}
+                className="fixed inset-0 bg-brand-primary/20 backdrop-blur-sm lg:hidden z-[-1]"
+              />
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="lg:hidden bg-white border-b border-gray-100 overflow-hidden shadow-2xl"
+              >
+                <div className="flex flex-col p-6 gap-2">
+                  {navLinks.map((link, i) => (
+                    <a 
+                      key={i} 
+                      href={link.href} 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="text-gray-700 hover:text-brand-accent transition-colors py-3 px-4 rounded-xl hover:bg-gray-50 font-medium text-lg text-right"
+                    >
+                      {link.name}
+                    </a>
+                  ))}
+                </div>
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
-      <header className="relative bg-brand-primary text-white pt-40 pb-24 px-6 overflow-hidden" id="hero">
+      <header className="relative bg-brand-primary text-white pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden" id="hero">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           <motion.div
@@ -316,11 +333,11 @@ export default function App() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight" id="main-title">
+            <h1 className="text-3xl md:text-6xl font-bold mb-6 leading-tight" id="main-title">
               متاهة الإدمان: <br />
               <span className="text-brand-secondary">الفهم، المواجهة، والتحرر</span>
             </h1>
-            <p className="text-xl md:text-2xl font-light opacity-90 max-w-2xl mx-auto leading-relaxed" id="hero-subtitle">
+            <p className="text-lg md:text-2xl font-light opacity-90 max-w-2xl mx-auto leading-relaxed" id="hero-subtitle">
               رحلة تبدأ بالوعي، وتستمر بالشجاعة، وتنتهي بالحرية. لأنك لست وحدك، ولأن التغيير ممكن دائماً.
             </p>
           </motion.div>
@@ -341,23 +358,23 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-16 space-y-32">
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-12 md:py-16 space-y-20 md:space-y-32">
         
         {/* Introduction Section */}
-        <section id="intro" className="scroll-mt-32">
+        <section id="intro" className="scroll-mt-24 md:scroll-mt-32">
           <motion.div 
-            className="grid md:grid-cols-2 gap-12 items-center"
+            className="flex flex-col md:grid md:grid-cols-2 gap-8 md:gap-12 items-center"
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"
           >
-            <motion.div variants={fadeIn}>
+            <motion.div variants={fadeIn} className="order-2 md:order-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-primary/10 text-brand-primary mb-6 shadow-sm">
                 <Heart size={18} className="text-brand-accent" />
                 <span className="text-sm font-semibold uppercase tracking-wider">نظرة إنسانية</span>
               </div>
-              <h2 className="text-4xl font-bold mb-6 text-brand-primary leading-tight">الإدمان: اضطراب لا خلل أخلاقي</h2>
-              <div className="space-y-4 text-lg text-gray-600 leading-relaxed">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-brand-primary leading-tight">الإدمان: اضطراب لا خلل أخلاقي</h2>
+              <div className="space-y-4 text-base md:text-lg text-gray-600 leading-relaxed text-right">
                 <p>
                   لسنوات طويلة، نُظر إلى الإدمان بصفته "ضعفاً في الشخصية" أو "فشلاً أخلاقياً". لكن العلم الحديث يؤكد أن الإدمان هو **اضطراب تكراري معقد** يؤثر بشكل مباشر على وظائف الدماغ وسلوكه.
                 </p>
@@ -367,7 +384,7 @@ export default function App() {
               </div>
             </motion.div>
             <motion.div 
-              className="relative aspect-square rounded-[3rem] overflow-hidden bg-gray-50 shadow-2xl flex items-center justify-center p-12"
+              className="relative aspect-square rounded-[2rem] md:rounded-[3rem] overflow-hidden bg-gray-50 shadow-2xl flex items-center justify-center p-8 md:p-12 order-1 md:order-2 w-full max-w-[400px] md:max-w-none mx-auto"
               variants={slideInRight}
             >
                <div className="absolute inset-0 bg-gradient-to-br from-brand-secondary/10 via-white to-brand-primary/10"></div>
@@ -438,37 +455,37 @@ export default function App() {
         </section>
 
         {/* Types of Addiction Section */}
-        <section id="types" className="scroll-mt-32">
+        <section id="types" className="scroll-mt-24 md:scroll-mt-32">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12 md:mb-16"
             variants={fadeIn}
             initial="initial"
             whileInView="whileInView"
           >
-            <h2 className="text-3xl font-bold text-brand-primary mb-4">تعددت الوجوه والجوهر واحد</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">ينقسم الإدمان إلى فئتين رئيسيتين، كلاهما يشتركان في السيطرة القهرية على الفرد.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-4">تعددت الوجوه والجوهر واحد</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto px-4 text-sm md:text-base">ينقسم الإدمان إلى فئتين رئيسيتين، كلاهما يشتركان في السيطرة القهرية على الفرد.</p>
           </motion.div>
           
           <motion.div 
-            className="grid md:grid-cols-2 gap-8"
+            className="grid md:grid-cols-2 gap-6 md:gap-8"
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"
           >
             {/* Chemical Addiction */}
             <motion.div 
-              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
+              className="p-6 md:p-8 rounded-[2rem] md:rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
               variants={slideInLeft}
               id="chemical-addiction"
             >
               <motion.div 
                 whileHover={{ rotate: [0, -10, 10, 0] }}
-                className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-6"
+                className="w-12 h-12 md:w-16 md:h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-6"
               >
-                <ShieldAlert className="text-red-500" size={32} />
+                <ShieldAlert className="text-red-500" size={28} />
               </motion.div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">الإدمان الكيميائي</h3>
-              <p className="text-gray-600 mb-6 italic">يتعلق بالمواد التي تدخل الجسم وتغير من كيميائه.</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">الإدمان الكيميائي</h3>
+              <p className="text-gray-600 mb-6 italic text-sm md:text-base">يتعلق بالمواد التي تدخل الجسم وتغير من كيميائه.</p>
               <motion.ul className="space-y-4" variants={staggerContainer}>
                 {[
                   { title: "المخدرات", desc: "بأنواعها المختلفة الطبيعية والمصنعة." },
@@ -478,11 +495,11 @@ export default function App() {
                 ].map((item, idx) => (
                   <motion.li key={idx} className="flex items-start gap-4" variants={listItemVariant}>
                     <div className="mt-1 p-1 rounded-full bg-brand-secondary/10">
-                      <CheckCircle2 size={16} className="text-brand-secondary flex-shrink-0" />
+                      <CheckCircle2 size={14} className="text-brand-secondary flex-shrink-0 md:w-[16px] md:h-[16px]" />
                     </div>
                     <div>
-                      <span className="font-bold text-gray-700">{item.title}:</span>
-                      <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+                      <span className="font-bold text-gray-700 text-sm md:text-base">{item.title}:</span>
+                      <p className="text-xs md:text-sm text-gray-500 mt-1">{item.desc}</p>
                     </div>
                   </motion.li>
                 ))}
@@ -491,18 +508,18 @@ export default function App() {
 
             {/* Behavioral Addiction */}
             <motion.div 
-              className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
+              className="p-6 md:p-8 rounded-[2rem] md:rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex-1"
               variants={slideInRight}
               id="behavioral-addiction"
             >
               <motion.div 
                 whileHover={{ rotate: [0, -10, 10, 0] }}
-                className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6"
+                className="w-12 h-12 md:w-16 md:h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6"
               >
-                <Activity className="text-blue-500" size={32} />
+                <Activity className="text-blue-500" size={28} />
               </motion.div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">الإدمان السلوكي</h3>
-              <p className="text-gray-600 mb-6 italic">يتمحور حول أفعال قهرية تعطي شعوراً مؤقتاً بالراحة.</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">الإدمان السلوكي</h3>
+              <p className="text-gray-600 mb-6 italic text-sm md:text-base">يتمحور حول أفعال قهرية تعطي شعوراً مؤقتاً بالراحة.</p>
               <motion.ul className="space-y-4" variants={staggerContainer}>
                 {[
                   { title: "الإنترنت والألعاب", desc: "الهروب من الواقع إلى العالم الرقمي لساعات." },
@@ -512,11 +529,11 @@ export default function App() {
                 ].map((item, idx) => (
                   <motion.li key={idx} className="flex items-start gap-4" variants={listItemVariant}>
                     <div className="mt-1 p-1 rounded-full bg-brand-secondary/10">
-                      <CheckCircle2 size={16} className="text-brand-secondary flex-shrink-0" />
+                      <CheckCircle2 size={14} className="text-brand-secondary flex-shrink-0 md:w-[16px] md:h-[16px]" />
                     </div>
                     <div>
-                      <span className="font-bold text-gray-700">{item.title}:</span>
-                      <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+                      <span className="font-bold text-gray-700 text-sm md:text-base">{item.title}:</span>
+                      <p className="text-xs md:text-sm text-gray-500 mt-1">{item.desc}</p>
                     </div>
                   </motion.li>
                 ))}
@@ -633,17 +650,17 @@ export default function App() {
         </section>
 
         {/* Symptoms Section */}
-        <section id="symptoms" className="scroll-mt-32">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-brand-primary mb-4">علامات التحذير: متى يجب الانتباه؟</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">الإدمان يتسلل إلى كافة جوانب الحياة، تاركاً خلفه آثاراً واضحة.</p>
+        <section id="symptoms" className="scroll-mt-24 md:scroll-mt-32">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-4">علامات التحذير: متى يجب الانتباه؟</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto px-4 text-sm md:text-base">الإدمان يتسلل إلى كافة جوانب الحياة، تاركاً خلفه آثاراً واضحة.</p>
           </div>
           
           <motion.div 
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"
-            className="grid md:grid-cols-3 gap-8"
+            className="grid md:grid-cols-3 gap-6 md:gap-8"
           >
             {[
               { 
@@ -665,13 +682,13 @@ export default function App() {
               <motion.div 
                 key={i}
                 variants={fadeIn}
-                className="p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                className="p-6 md:p-8 rounded-[2rem] md:rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="mb-4">{box.icon}</div>
-                <h3 className="text-xl font-bold mb-4">{box.title}</h3>
+                <h3 className="text-lg md:text-xl font-bold mb-4">{box.title}</h3>
                 <ul className="space-y-3">
                   {box.list.map((item, j) => (
-                    <li key={j} className="text-gray-600 text-sm flex gap-2">
+                    <li key={j} className="text-gray-600 text-xs md:text-sm flex gap-2 text-right">
                        <span className="w-1.5 h-1.5 rounded-full bg-brand-secondary mt-1.5 flex-shrink-0"></span>
                        {item}
                     </li>
@@ -683,16 +700,38 @@ export default function App() {
         </section>
 
         {/* Myths and Facts Section */}
-        <section id="myths" className="scroll-mt-32">
-           <div className="bg-brand-bg rounded-[3rem] p-8 md:p-16 border-2 border-brand-primary/5">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-brand-primary mb-4 flex items-center justify-center gap-3">
-                   <HelpCircle className="text-brand-accent " />
+        <section id="myths" className="scroll-mt-24 md:scroll-mt-32">
+           <div className="bg-brand-bg rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-16 border-2 border-brand-primary/5">
+              <div className="text-center mb-8 md:mb-12">
+                <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-4 flex items-center justify-center gap-3 font-sans">
+                   <HelpCircle className="text-brand-accent shrink-0" size={28} />
                    خرافات وحقائق
                 </h2>
               </div>
               
-              <div className="overflow-x-auto">
+              {/* Mobile Card Layout */}
+              <div className="md:hidden space-y-6">
+                {[
+                  { m: "المدمن شخص 'سيء' يحتاج إلى العقاب.", f: "المدمن شخص 'مريض' يحتاج إلى العلاج والدعم." },
+                  { m: "التوقف عن الإدمان هو مسألة 'قوة إرادة' فقط.", f: "الإرادة مهمة، لكن الإدمان يغير كيمياء الدماغ ويتطلب علاجاً متخصصاً." },
+                  { m: "المرور بانتكاسة يعني فشل رحلة العلاج.", f: "الانتكاسة جزء من مسار التعافي لبعض الأشخاص وتتطلب مراجعة الخطة العلاجية." },
+                  { m: "الإدمان الكيميائي فقط هو الإدمان 'الحقيقي'.", f: "الإدمان السلوكي له نفس الأثر المدمر على مراكز المكافأة في الدماغ." }
+                ].map((row, i) => (
+                  <div key={i} className="bg-white p-6 rounded-2xl border border-brand-primary/5 shadow-sm text-right space-y-4">
+                    <div>
+                      <div className="text-red-500 font-bold text-xs uppercase tracking-widest mb-1">الخرافة</div>
+                      <p className="text-gray-500 italic text-sm">"{row.m}"</p>
+                    </div>
+                    <div className="pt-4 border-t border-gray-50">
+                      <div className="text-green-600 font-bold text-xs uppercase tracking-widest mb-1">الحقيقة</div>
+                      <p className="text-gray-800 font-medium leading-relaxed text-sm">{row.f}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-right border-collapse">
                   <thead>
                     <tr className="border-b-2 border-brand-secondary/20">
@@ -719,23 +758,23 @@ export default function App() {
         </section>
 
         {/* Enjoyable Prevention Section */}
-        <section id="prevention" className="scroll-mt-32">
-          <div className="text-center mb-16">
+        <section id="prevention" className="scroll-mt-24 md:scroll-mt-32">
+          <div className="text-center mb-12 md:mb-16">
             <motion.div 
               variants={scaleIn}
               initial="initial"
               whileInView="whileInView"
               className="inline-flex p-3 bg-brand-secondary/10 rounded-2xl mb-4"
             >
-              <Trophy className="text-brand-secondary" size={32} />
+              <Trophy className="text-brand-secondary" size={28} md:size={32} />
             </motion.div>
-            <h2 className="text-3xl font-bold text-brand-primary mb-4">بدائل ممتعة وحياة متزنة</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-4 px-4">بدائل ممتعة وحياة متزنة</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto px-6 text-sm md:text-base">
               الوقاية ليست مجرد ابتعاد عما يضر، بل هي اقتراب مما ينفع ويجلب السعادة الحقيقية والمستدامة.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[
               {
                 icon: <Dumbbell size={28} />,
@@ -766,35 +805,35 @@ export default function App() {
                 bg: "bg-amber-50"
               }
             ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={fadeIn}
-                whileHover={{ y: -10, transition: { duration: 0.3 } }}
-                className="p-6 rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
-              >
-                <div className={`p-4 ${item.bg} ${item.color} rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform`}>
-                  {item.icon}
-                </div>
-                <h3 className="text-xl font-bold text-brand-primary mb-3">{item.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  {item.desc}
-                </p>
-              </motion.div>
+          <motion.div 
+            key={i}
+            variants={fadeIn}
+            whileHover={{ y: -10, transition: { duration: 0.3 } }}
+            className="p-6 rounded-[1.5rem] md:rounded-[2rem] bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
+          >
+            <div className={`p-3 md:p-4 ${item.bg} ${item.color} rounded-xl md:rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform`}>
+              {item.icon}
+            </div>
+            <h3 className="text-lg md:text-xl font-bold text-brand-primary mb-3">{item.title}</h3>
+            <p className="text-gray-500 text-xs md:text-sm leading-relaxed">
+              {item.desc}
+            </p>
+          </motion.div>
             ))}
           </div>
 
           <motion.div 
-            className="mt-12 p-8 rounded-[2.5rem] bg-gradient-to-r from-brand-primary to-brand-primary/90 text-white flex flex-col md:flex-row items-center gap-8 shadow-xl"
+            className="mt-12 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-r from-brand-primary to-brand-primary/90 text-white flex flex-col md:flex-row items-center gap-6 md:gap-8 shadow-xl"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="p-5 bg-white/10 backdrop-blur-md rounded-full">
-              <Lightbulb className="text-brand-accent animate-pulse" size={40} />
+            <div className="p-4 md:p-5 bg-white/10 backdrop-blur-md rounded-full shrink-0">
+              <Lightbulb className="text-brand-accent animate-pulse" size={32} md:size={40} />
             </div>
             <div className="flex-1 text-center md:text-right">
-              <h4 className="text-2xl font-bold mb-2">القاعدة الذهبية: الوعي بالمحفزات</h4>
-              <p className="opacity-80 leading-relaxed italic border-r-2 border-brand-accent/50 pr-4">
+              <h4 className="text-xl md:text-2xl font-bold mb-2">القاعدة الذهبية: الوعي بالمحفزات</h4>
+              <p className="text-sm md:text-base opacity-80 leading-relaxed italic border-r-2 border-brand-accent/50 pr-4">
                 "السعادة الحقيقية هي تلك التي نبنيها بوعينا، وليست تلك التي نستعيرها من مواد خارجية بفوائد باهظة من صحتنا ومستقبلنا."
               </p>
             </div>
@@ -802,10 +841,10 @@ export default function App() {
         </section>
 
         {/* Recovery Steps Section */}
-        <section id="recovery" className="scroll-mt-32">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl font-bold text-brand-primary mb-6">خطوات التعافي: الباب دائماً مفتوح</h2>
-            <p className="text-gray-600 leading-relaxed text-lg italic">
+        <section id="recovery" className="scroll-mt-24 md:scroll-mt-32">
+          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-6 px-4">خطوات التعافي: الباب دائماً مفتوح</h2>
+            <p className="text-gray-600 leading-relaxed text-base md:text-lg italic px-6">
               "التعافي ليس وجهة نصل إليها، بل هو مسار نختاره كل يوم."
             </p>
           </div>
@@ -1021,16 +1060,16 @@ export default function App() {
         </section>
 
         {/* Psychological Test Section */}
-        <section id="psychological-test" className="scroll-mt-32">
-          <div className="bg-brand-primary rounded-[3rem] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl">
+        <section id="psychological-test" className="scroll-mt-24 md:scroll-mt-32">
+          <div className="bg-brand-primary rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-16 text-white relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-[80px] rounded-full"></div>
             <div className="relative z-10 max-w-3xl mx-auto">
-              <div className="text-center mb-12">
+              <div className="text-center mb-8 md:mb-12">
                 <div className="inline-flex p-3 bg-white/10 rounded-2xl mb-6">
-                  <ClipboardList size={32} className="text-brand-accent" />
+                  <ClipboardList size={28} md:size={32} className="text-brand-accent" />
                 </div>
-                <h2 className="text-3xl font-bold mb-4">مقياس الوعي والمرونة النفسية</h2>
-                <p className="text-white/70">توقف قليلاً لتتأمل في عالمك الداخلي. أجب بصدق لتعرف مدى صلابة درعك النفسي.</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">مقياس الوعي والمرونة النفسية</h2>
+                <p className="text-white/70 text-sm md:text-base px-4">توقف قليلاً لتتأمل في عالمك الداخلي. أجب بصدق لتعرف مدى صلابة درعك النفسي.</p>
               </div>
 
               <AnimatePresence mode="wait">
@@ -1042,11 +1081,11 @@ export default function App() {
                     exit={{ opacity: 0, y: -20 }}
                     className="space-y-8"
                   >
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-3xl">
-                      <h3 className="text-xl md:text-2xl font-bold mb-8 leading-relaxed text-center">
+                    <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 md:p-8 rounded-2xl md:rounded-3xl">
+                      <h3 className="text-lg md:text-2xl font-bold mb-8 leading-relaxed text-center">
                         {psychologicalTestQuestions[pQuizStep].q}
                       </h3>
-                      <div className="grid gap-4">
+                      <div className="grid gap-3 md:gap-4">
                         {psychologicalTestQuestions[pQuizStep].options.map((option, idx) => {
                           const isSelected = selectedPOption === idx;
                           
@@ -1067,10 +1106,10 @@ export default function App() {
                               key={idx}
                               disabled={isPAnswered}
                               onClick={() => handlePQuizAnswer(idx)}
-                              className={`w-full p-5 rounded-2xl border text-right transition-all flex items-center justify-between group ${bgColor} ${borderColor}`}
+                              className={`w-full p-4 md:p-5 rounded-xl md:rounded-2xl border text-right transition-all flex items-center justify-between group ${bgColor} ${borderColor}`}
                             >
-                              <span className="text-lg">{option.text}</span>
-                              {isPAnswered && isSelected && <CheckCircle2 className="text-brand-accent" size={24} />}
+                              <span className="text-sm md:text-lg">{option.text}</span>
+                              {isPAnswered && isSelected && <CheckCircle2 className="text-brand-accent shrink-0" size={20} md:size={24} />}
                             </button>
                           );
                         })}
@@ -1153,15 +1192,15 @@ export default function App() {
         </section>
 
         {/* FAQ Section */}
-        <section id="faq" className="scroll-mt-32">
+        <section id="faq" className="scroll-mt-24 md:scroll-mt-32">
            <motion.div 
-             className="text-center mb-16"
+             className="text-center mb-12 md:mb-16"
              variants={fadeIn}
              initial="initial"
              whileInView="whileInView"
            >
-              <h2 className="text-3xl font-bold text-brand-primary mb-4">الأسئلة الشائعة</h2>
-              <p className="text-gray-600">إجابات سريعة على تساؤلات قد تدور في ذهنك.</p>
+              <h2 className="text-2xl md:text-3xl font-bold text-brand-primary mb-4">الأسئلة الشائعة</h2>
+              <p className="text-gray-600 px-6 text-sm md:text-base">إجابات سريعة على تساؤلات قد تدور في ذهنك.</p>
            </motion.div>
            
            <motion.div 
@@ -1197,42 +1236,51 @@ export default function App() {
            </motion.div>
         </section>
 
-        {/* Resource Links / Contact (Optional) */}
-        <section className="bg-brand-bg rounded-[3rem] p-8 md:p-12 text-center" id="support">
-           <h3 className="text-2xl font-bold mb-6 text-brand-primary">هل تحتاج للمساعدة الآن؟</h3>
-           <div className="flex flex-wrap justify-center gap-6">
-              <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-sm border border-gray-100">
-                 <LifeBuoy className="text-brand-accent" size={20} />
-                 <span className="font-medium">خط الدعم النفسي: 12345 (تجريبي)</span>
+        {/* Resource Links / Support Section */}
+        <section className="bg-brand-bg rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 text-center" id="support">
+           <h3 className="text-xl md:text-2xl font-bold mb-8 text-brand-primary">هل تحتاج للمساعدة الآن؟</h3>
+           <div className="flex flex-col md:flex-row flex-wrap justify-center gap-4 md:gap-6">
+              <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-100 justify-center">
+                 <LifeBuoy className="text-brand-accent shrink-0" size={24} />
+                 <span className="font-semibold text-sm md:text-base">خط الدعم النفسي: 12345 (تجريبي)</span>
               </div>
-              <div className="flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-sm border border-gray-100">
-                 <Search className="text-brand-secondary" size={20} />
-                 <span className="font-medium">ابحث عن أقرب مركز علاج</span>
+              <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-100 justify-center">
+                 <Search className="text-brand-secondary shrink-0" size={24} />
+                 <span className="font-semibold text-sm md:text-base">ابحث عن أقرب مركز علاج</span>
               </div>
            </div>
         </section>
 
         {/* Message of Hope */}
-        <section id="hope" className="text-center pt-16">
+        <section id="hope" className="text-center pt-8 md:pt-16">
            <motion.div
              initial={{ opacity: 0, scale: 0.95 }}
              whileInView={{ opacity: 1, scale: 1 }}
              viewport={{ once: true }}
-             className="bg-brand-accent text-white p-12 rounded-[4rem] relative overflow-hidden"
+             className="bg-brand-accent text-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4rem] relative overflow-hidden"
            >
               <div className="absolute -top-12 -left-12 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
               <div className="relative z-10">
-                 <Lightbulb className="mx-auto mb-6 text-yellow-200" size={48} />
-                 <h2 className="text-4xl font-bold mb-6">رسالة أمل</h2>
-                 <p className="text-xl max-w-2xl mx-auto leading-relaxed font-light mb-8">
+                 <Lightbulb className="mx-auto mb-6 text-yellow-200" size={40} md:size={48} />
+                 <h2 className="text-3xl md:text-4xl font-bold mb-6">رسالة أمل</h2>
+                 <p className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-light mb-8 px-4">
                    مهما كان عمق المتاهة، ومهما كانت جدرانها عالية، تذكر دائماً أنك تمتلك القوة بداخل الطلب للمساعدة. التعافي ليس سهلاً، لكنه يستحق كل ثانية من الجد. اليوم هو الوقت المناسب لتبدأ من جديد.
                  </p>
-                 <div className="flex flex-wrap justify-center gap-4">
-                    <button className="bg-white text-brand-accent px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-colors shadow-lg group">
+                 <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    <button 
+                      onClick={() => setShowJourney(true)}
+                      className="bg-white text-brand-accent px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-all shadow-lg group text-sm md:text-base"
+                    >
                       ابدأ رحلتك اليوم
-                      <ArrowRight className="inline-block mr-2 group-hover:translate-x-1 transition-transform" size={20} />
+                      <ArrowRight className="inline-block mr-2 group-hover:translate-x-1 transition-transform rotate-180" size={20} />
                     </button>
-                    <button className="bg-brand-primary/20 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-colors">
+                    <button 
+                      onClick={() => {
+                        setIsContactOpen(true);
+                        document.getElementById('community')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="bg-brand-primary/20 backdrop-blur-md text-white border border-white/20 px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-all text-sm md:text-base"
+                    >
                       تواصل مع مستشار
                     </button>
                  </div>
@@ -1241,27 +1289,27 @@ export default function App() {
         </section>
 
         {/* Social Media & Community Section (Expandable) */}
-        <section id="community" className="scroll-mt-32 py-16">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="bg-gray-50 rounded-[3rem] p-8 md:p-12 border border-gray-100 shadow-sm">
+        <section id="community" className="scroll-mt-24 md:scroll-mt-32 pt-8 md:py-16">
+          <div className="max-w-4xl mx-auto px-4 md:px-6">
+            <div className="bg-gray-50 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 border border-gray-100 shadow-sm">
               <button 
                 onClick={() => setIsContactOpen(!isContactOpen)}
-                className="w-full flex items-center justify-between group"
+                className="w-full flex items-center justify-between group text-right"
               >
-                <div className="flex items-center gap-4">
-                  <div className={`p-4 rounded-2xl transition-colors ${isContactOpen ? 'bg-brand-primary text-white' : 'bg-white text-brand-primary border border-gray-100'}`}>
-                    <Users size={28} />
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl transition-colors ${isContactOpen ? 'bg-brand-primary text-white' : 'bg-white text-brand-primary border border-gray-100'}`}>
+                    <Users size={24} md:size={28} />
                   </div>
-                  <div className="text-right">
-                    <h2 className="text-2xl font-bold text-brand-primary">تواصل معنا</h2>
-                    <p className="text-gray-500 text-sm">انضم لمجتمعنا على انستغرام وديسكورد</p>
+                  <div>
+                    <h2 className="text-xl md:text-2xl font-bold text-brand-primary leading-tight">تواصل معنا</h2>
+                    <p className="text-gray-500 text-[10px] md:text-sm">انضم لمجتمعنا على انستغرام وديسكورد</p>
                   </div>
                 </div>
                 <motion.div
                   animate={{ rotate: isContactOpen ? 180 : 0 }}
-                  className="p-2 text-gray-400 group-hover:text-brand-accent transition-colors"
+                  className="p-2 text-gray-400 group-hover:text-brand-accent transition-colors shrink-0"
                 >
-                  <ChevronDown size={32} />
+                  <ChevronDown size={28} md:size={32} />
                 </motion.div>
               </button>
               
@@ -1273,14 +1321,14 @@ export default function App() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="pt-12 grid md:grid-cols-2 gap-12 items-start border-t border-gray-100 mt-8">
+                    <div className="pt-8 md:pt-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-start border-t border-gray-100 mt-6 md:mt-8">
                       {/* Instagram Accounts */}
                       <div className="space-y-6">
                         <div className="flex items-center justify-center gap-3 text-pink-600 mb-4">
-                          <Instagram size={28} />
-                          <span className="font-bold text-lg">حسابات انستغرام</span>
+                          <Instagram size={24} md:size={28} />
+                          <span className="font-bold text-base md:text-lg">حسابات انستغرام</span>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-2 md:gap-3">
                           {[
                             "that_friendly_guy1",
                             "shezam.bn",
@@ -1295,10 +1343,10 @@ export default function App() {
                               rel="noopener noreferrer"
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center justify-center gap-2 text-sm font-medium text-gray-700 hover:text-pink-600 hover:border-pink-200 transition-all"
+                              className="bg-white p-2 md:p-3 rounded-lg md:rounded-xl border border-gray-100 shadow-sm flex items-center justify-center gap-1 md:gap-2 text-[10px] md:text-sm font-medium text-gray-700 hover:text-pink-600 hover:border-pink-200 transition-all text-center"
                             >
-                              <Instagram size={14} className="text-pink-500" />
-                              @{acc}
+                              <Instagram size={12} className="text-pink-500 shrink-0" />
+                              <span className="truncate">@{acc}</span>
                             </motion.a>
                           ))}
                         </div>
@@ -1306,22 +1354,22 @@ export default function App() {
 
                       {/* Discord Section */}
                       <div className="flex flex-col items-center justify-center h-full border-t md:border-t-0 md:border-r border-gray-100 pt-8 md:pt-0">
-                        <div className="flex items-center justify-center gap-3 text-indigo-600 mb-6">
-                          <MessageSquare size={28} />
-                          <span className="font-bold text-lg">مجتمع ديسكورد</span>
+                        <div className="flex items-center justify-center gap-3 text-indigo-600 mb-4 md:mb-6">
+                          <MessageSquare size={24} md:size={28} />
+                          <span className="font-bold text-base md:text-lg">مجتمع ديسكورد</span>
                         </div>
-                        <p className="text-gray-600 text-sm mb-8 max-w-xs mx-auto text-center leading-relaxed">
+                        <p className="text-gray-600 text-xs md:text-sm mb-6 md:mb-8 max-w-xs mx-auto text-center leading-relaxed">
                           انضم إلى مجتمعنا على ديسكورد للحصول على دعم مباشر، نقاشات هادفة، ومساحة آمنة للتعبير والنمو المشترك.
                         </p>
                         <motion.a 
-                          href="https://discord.gg/invite" // Replace with actual discord invite link
+                          href="https://discord.gg/invite"
                           target="_blank"
                           rel="noopener noreferrer"
                           whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(79, 70, 229, 0.4)" }}
                           whileTap={{ scale: 0.95 }}
-                          className="bg-indigo-600 text-white px-10 py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-indigo-100 transition-all"
+                          className="bg-indigo-600 text-white px-8 py-3 md:px-10 md:py-4 rounded-full font-bold flex items-center gap-3 shadow-lg shadow-indigo-100 transition-all text-sm md:text-base"
                         >
-                          <MessageSquare size={20} />
+                          <MessageSquare size={18} md:size={20} />
                           انضم للسيرفر
                         </motion.a>
                       </div>
@@ -1388,7 +1436,7 @@ export default function App() {
                </div>
             </div>
             
-            <div className="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-gray-400">
+            <div className="pt-8 md:pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] md:text-xs text-gray-400">
                <div className="max-w-md text-center md:text-right">
                   هذا الموقع للأغراض التثقيفية والتوعوية فقط. المعلومات المقدمة ليست بديلاً عن المشورة الطبية المتخصصة.
                </div>
@@ -1398,6 +1446,207 @@ export default function App() {
             </div>
          </div>
       </footer>
+
+      {/* Recovery Journey Modal */}
+      <AnimatePresence>
+        {showJourney && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-white overflow-y-auto font-sans"
+          >
+            <div className="min-h-screen flex flex-col">
+              {/* Header */}
+              <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-10">
+                <div className="max-w-4xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
+                  <div className="text-brand-primary font-bold text-lg">رحلة التعافي والتحرر</div>
+                  <button 
+                    onClick={() => {
+                      setShowJourney(false);
+                      setJourneyStep(0);
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="h-1.5 w-full bg-gray-100">
+                <motion.div 
+                  className="h-full bg-brand-accent"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${((journeyStep + 1) / 5) * 100}%` }}
+                />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 max-w-3xl mx-auto px-6 py-12 md:py-20 flex flex-col md:justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={journeyStep}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-8 text-right"
+                  >
+                    {journeyStep === 0 && (
+                      <div className="space-y-8">
+                        <div className="w-20 h-20 bg-brand-primary/5 rounded-[2rem] flex items-center justify-center text-brand-primary mx-auto mb-8">
+                          <Brain size={40} />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brand-primary text-center">المرحلة الأولى: الوعي والقرار</h2>
+                        <p className="text-lg text-gray-600 leading-relaxed text-center">
+                          تبدأ الرحلة دائماً بالاعتراف بالحقيقة. لست بحاجة للقوة الخارقة، بل الصدق مع نفسك. هل أنت مستعد للبدء؟
+                        </p>
+                        <div className="grid gap-4 mt-12">
+                          <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
+                            <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
+                              <CheckCircle2 className="text-green-500" size={20} />
+                            </div>
+                            <p className="text-gray-700">حدد "لماذا" تريد التغيير (الصحة، العائلة، المستقبل؟)</p>
+                          </div>
+                          <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex items-start gap-4">
+                            <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
+                              <CheckCircle2 className="text-green-500" size={20} />
+                            </div>
+                            <p className="text-gray-700">تقبل أن الفشل السابق لا يحدد مستقبلك.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {journeyStep === 1 && (
+                      <div className="space-y-8">
+                        <div className="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center text-blue-500 mx-auto mb-8">
+                          <Search size={40} />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brand-primary text-center">المرحلة الثانية: تحديد المحفزات</h2>
+                        <p className="text-lg text-gray-600 leading-relaxed text-center">
+                          ما هي "المواقف" أو "المشاعر" التي تجعلك تعود؟ فهم العدو هو نصف المعركة.
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-3">
+                          {["وحدة", "ملل", "توتر", "أماكن معينة", "أصدقاء السوء", "تطبيقات"].map((t) => (
+                            <span key={t} className="px-5 py-2 bg-white border border-gray-100 rounded-full text-gray-600 shadow-sm">{t}</span>
+                          ))}
+                        </div>
+                        <div className="p-6 bg-brand-secondary/5 rounded-2xl border border-brand-secondary/10">
+                          <p className="text-brand-primary font-medium">نصيحة: ابدأ بكتابة قائمة بهذه المحفزات وضع خطة لتجنبها أو مواجهتها بطريقة جديدة.</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {journeyStep === 2 && (
+                      <div className="space-y-8">
+                        <div className="w-20 h-20 bg-green-50 rounded-[2rem] flex items-center justify-center text-green-500 mx-auto mb-8">
+                          <Wind size={40} />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brand-primary text-center">المرحلة الثالثة: تنظيف البيئة</h2>
+                        <p className="text-lg text-gray-600 leading-relaxed text-center">
+                          احمِ نفسك من نفسك. ابنِ سداً بينك وبين ما يؤذيك في محيطك المباشر.
+                        </p>
+                        <ul className="space-y-4">
+                          <li className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
+                            <div className="w-2 h-2 rounded-full bg-brand-accent"></div>
+                            <span>احذف التطبيقات، تخلص من الأدوات، وابتعد عن الأماكن السامة.</span>
+                          </li>
+                          <li className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl">
+                            <div className="w-2 h-2 rounded-full bg-brand-accent"></div>
+                            <span>أخبر شخصاً تثق به بقرارك ليكون شريكاً في المساءلة.</span>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+
+                    {journeyStep === 3 && (
+                      <div className="space-y-8">
+                        <div className="w-20 h-20 bg-amber-50 rounded-[2rem] flex items-center justify-center text-amber-500 mx-auto mb-8">
+                          <Trees size={40} />
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brand-primary text-center">المرحلة الرابعة: البدائل الصحية</h2>
+                        <p className="text-lg text-gray-600 leading-relaxed text-center">
+                          العقل لا يحب الفراغ. املأ مكان العادات القديمة بشيء يغذي روحك وجسدك.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="p-6 bg-white border border-gray-100 rounded-2xl text-center hover:border-brand-accent transition-colors">
+                            <Dumbbell className="mx-auto mb-3 text-blue-500" />
+                            <span className="font-bold">الحركة</span>
+                          </div>
+                          <div className="p-6 bg-white border border-gray-100 rounded-2xl text-center hover:border-brand-accent transition-colors">
+                            <Palette className="mx-auto mb-3 text-purple-500" />
+                            <span className="font-bold">الإبداع</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {journeyStep === 4 && (
+                      <div className="space-y-8">
+                         <motion.div 
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-24 h-24 bg-brand-accent rounded-full flex items-center justify-center text-white mx-auto mb-8 shadow-[0_0_30px_rgba(255,188,4,0.4)]"
+                        >
+                          <Trophy size={48} />
+                        </motion.div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brand-primary text-center">المرحلة الخامسة: الاستمرارية</h2>
+                        <p className="text-lg text-gray-600 leading-relaxed text-center italic">
+                          "التحرر ليس سباقاً، بل هو نمط حياة جديد."
+                        </p>
+                        <div className="p-8 bg-brand-primary text-white rounded-3xl text-center space-y-4">
+                          <p className="opacity-90 font-light">تذكر أن كل يوم يمر هو انتصار عظيم. احتفل بخطواتك مهما كانت صغيرة.</p>
+                          <button 
+                             onClick={() => setShowJourney(false)}
+                             className="px-10 py-4 bg-white text-brand-primary rounded-full font-bold hover:bg-brand-accent hover:text-white transition-all shadow-xl"
+                          >
+                             بدء الرحلة الآن
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="pt-12 flex justify-between gap-4">
+                      {journeyStep < 4 ? (
+                        <>
+                          <button 
+                            onClick={() => setJourneyStep(prev => prev + 1)}
+                            className="flex-1 py-4 bg-brand-primary text-white rounded-2xl font-bold hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                          >
+                            المرحلة التالية
+                            <ArrowRight className="rotate-180" size={18} />
+                          </button>
+                          {journeyStep > 0 && (
+                            <button 
+                              onClick={() => setJourneyStep(prev => prev - 1)}
+                              className="px-8 py-4 border border-gray-200 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
+                            >
+                              السابق
+                            </button>
+                          )}
+                        </>
+                      ) : null}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* Navigation Footer for Journey */}
+              <div className="p-8 mt-auto flex justify-center gap-4 border-t border-gray-50 bg-gray-50/50">
+                <div className="flex gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div 
+                      key={i} 
+                      className={`h-2 rounded-full transition-all duration-500 ${i === journeyStep ? 'w-8 bg-brand-accent' : 'w-2 bg-gray-200'}`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
